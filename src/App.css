@@ -10,9 +10,14 @@
 }
 
 .app-shell {
-  width: min(1200px, calc(100% - 32px));
-  margin: 0 auto;
-  padding: 32px 0 48px;
+  width: 95vw;
+  max-width: 1400px;
+  margin: 10px auto;
+  padding: 18px 8px 28px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .hero-card,
@@ -181,13 +186,17 @@
 
 .game-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.65fr);
-  gap: 18px;
+  grid-template-columns: minmax(0, 2.2fr) minmax(300px, 0.6fr);
+  gap: 20px;
+  align-items: start;
 }
 
 .board-card {
-  padding: 20px;
-  overflow: hidden;
+  padding: 16px;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .board-header {
@@ -222,10 +231,12 @@
 
 .board {
   position: relative;
-  aspect-ratio: 16 / 9;
-  min-height: min(68vh, 760px);
+  width: 100%;
+  /* Make the board take most of the viewport height while keeping it responsive */
+  height: min(78vh, 820px);
+  box-sizing: border-box;
   padding: 18px;
-  border-radius: 30px;
+  border-radius: 20px;
   overflow: hidden;
   cursor: crosshair;
   background:
@@ -437,19 +448,31 @@
 
 .champion-card.player-one {
   background:
-    radial-gradient(circle at 92% 14%, rgba(255, 255, 255, 0.32), transparent 24%),
+    radial-gradient(
+      circle at 92% 14%,
+      rgba(255, 255, 255, 0.32),
+      transparent 24%
+    ),
     linear-gradient(135deg, #c71f64, #ff4d8a);
 }
 
 .champion-card.player-two {
   background:
-    radial-gradient(circle at 92% 14%, rgba(255, 255, 255, 0.32), transparent 24%),
+    radial-gradient(
+      circle at 92% 14%,
+      rgba(255, 255, 255, 0.32),
+      transparent 24%
+    ),
     linear-gradient(135deg, #1163d8, #2f8dff);
 }
 
 .champion-card.draw {
   background:
-    radial-gradient(circle at 92% 14%, rgba(255, 255, 255, 0.28), transparent 24%),
+    radial-gradient(
+      circle at 92% 14%,
+      rgba(255, 255, 255, 0.28),
+      transparent 24%
+    ),
     linear-gradient(135deg, #424a57, #7c8798);
 }
 
@@ -567,7 +590,8 @@
   }
 
   .app-shell {
-    width: min(100% - 20px, 1200px);
+    width: calc(100% - 24px);
+    max-width: none;
     padding-top: 20px;
   }
 }
@@ -584,7 +608,7 @@
   }
 
   .board {
-    min-height: 0;
+    height: auto;
     padding: 12px;
   }
 }

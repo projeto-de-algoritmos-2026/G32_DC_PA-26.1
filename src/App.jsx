@@ -139,7 +139,11 @@ function getMatchSummary(rounds) {
   );
 
   const champion =
-    wins[1] === wins[2] ? "empate" : wins[1] > wins[2] ? "jogador 1" : "jogador 2";
+    wins[1] === wins[2]
+      ? "empate"
+      : wins[1] > wins[2]
+        ? "jogador 1"
+        : "jogador 2";
 
   return { wins, champion };
 }
@@ -194,7 +198,10 @@ function App() {
   const playerOneReady = game.points[1].length === POINTS_PER_PLAYER;
   const playerTwoReady = game.points[2].length === POINTS_PER_PLAYER;
   const setupComplete = playerOneReady && playerTwoReady;
-  const matchSummary = useMemo(() => getMatchSummary(game.rounds), [game.rounds]);
+  const matchSummary = useMemo(
+    () => getMatchSummary(game.rounds),
+    [game.rounds],
+  );
   const matchFinished = game.phase === "finished";
 
   function getPlayerName(player) {
@@ -218,7 +225,9 @@ function App() {
   function startMatch() {
     const playerNames = {
       1: nameInputs[1].trim() || DEFAULT_PLAYER_NAMES[1],
-      2: nameInputs[2].trim() || (game.mode === "bot" ? "Bot" : DEFAULT_PLAYER_NAMES[2]),
+      2:
+        nameInputs[2].trim() ||
+        (game.mode === "bot" ? "Bot" : DEFAULT_PLAYER_NAMES[2]),
     };
 
     setNameInputs(playerNames);
@@ -274,8 +283,7 @@ function App() {
           },
           phase: "ready",
           currentPlayer: 1,
-          message:
-            `${current.playerNames[1]} terminou. ${current.playerNames[2]} posicionou os pontos e a rodada está pronta.`,
+          message: `${current.playerNames[1]} terminou. ${current.playerNames[2]} posicionou os pontos e a rodada está pronta.`,
         };
       }
 
@@ -439,7 +447,11 @@ function App() {
                 }
               />
             </label>
-            <button type="button" className="primary-button" onClick={startMatch}>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={startMatch}
+            >
               Começar partida
             </button>
           </div>
@@ -447,253 +459,263 @@ function App() {
       ) : null}
 
       {game.phase !== "players" ? (
-      <section className="game-layout">
-        <div className="board-card">
-          <div className="board-header">
-            <div>
-              <h2>Quadro</h2>
+        <section className="game-layout">
+          <div className="board-card">
+            <div className="board-header">
+              <div>
+                <h2>Quadro</h2>
+                <p>
+                  <strong>
+                    Rodada {Math.min(game.round, MAX_ROUNDS)} de {MAX_ROUNDS}.
+                  </strong>{" "}
+                  {game.message}
+                </p>
+              </div>
+              <span className="phase-pill">
+                {game.phase === "setup"
+                  ? "Preparação"
+                  : game.phase === "ready"
+                    ? "Pronto"
+                    : game.phase === "finished"
+                      ? "Final"
+                      : "Resultado"}
+              </span>
+            </div>
+
+            <div
+              ref={boardRef}
+              className={`board ${game.phase !== "setup" ? "board-readonly" : ""}`}
+              onClick={handleBoardClick}
+              role="application"
+              aria-label="Quadro de posicionamento"
+            >
+              <div className="board-rim" aria-hidden="true" />
+              <div className="axis-label axis-top-left">1</div>
+              <div className="axis-label axis-bottom-right">
+                {BOARD_WIDTH} x {BOARD_HEIGHT}
+              </div>
+
+              <div className="board-points">
+                {game.points[1].map((point) => {
+                  const isTarget =
+                    game.target?.x === point.x && game.target?.y === point.y;
+                  const isClosestPair = game.closestPair?.pair?.some(
+                    (candidate) =>
+                      candidate.x === point.x && candidate.y === point.y,
+                  );
+
+                  return (
+                    <button
+                      key={`p1-${pointKey(point)}`}
+                      type="button"
+                      className={`point-dot player-one ${isTarget ? "target" : ""} ${isClosestPair ? "closest-pair" : ""}`}
+                      style={pointPosition(point)}
+                      disabled
+                      aria-label={`${getPlayerName(1)} em ${formatPoint(point)}`}
+                    >
+                      <span className={pointLabelClass(point)}>
+                        {getPlayerName(1)} {formatPoint(point)}
+                      </span>
+                    </button>
+                  );
+                })}
+
+                {game.points[2].map((point) => {
+                  const isTarget =
+                    game.target?.x === point.x && game.target?.y === point.y;
+                  const isClosestPair = game.closestPair?.pair?.some(
+                    (candidate) =>
+                      candidate.x === point.x && candidate.y === point.y,
+                  );
+
+                  return (
+                    <button
+                      key={`p2-${pointKey(point)}`}
+                      type="button"
+                      className={`point-dot player-two ${isTarget ? "target" : ""} ${isClosestPair ? "closest-pair" : ""}`}
+                      style={pointPosition(point)}
+                      disabled
+                      aria-label={`${getPlayerName(2)} em ${formatPoint(point)}`}
+                    >
+                      <span className={pointLabelClass(point)}>
+                        {getPlayerName(2)} {formatPoint(point)}
+                      </span>
+                    </button>
+                  );
+                })}
+
+                {game.target ? (
+                  <div
+                    className="target-dot"
+                    style={pointPosition(game.target)}
+                    aria-hidden="true"
+                  />
+                ) : null}
+              </div>
+            </div>
+
+            <div className="points-under-board">
+              <h3>Lista de pontos</h3>
+              <div className="points-grid">
+                <div>
+                  <strong>{getPlayerName(1)}</strong>
+                  <ul>
+                    {game.points[1].map((point) => (
+                      <li key={pointKey(point)}>{formatPoint(point)}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <strong>{getPlayerName(2)}</strong>
+                  <ul>
+                    {game.points[2].map((point) => (
+                      <li key={pointKey(point)}>{formatPoint(point)}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside className="sidebar">
+            {game.phase === "result" || game.phase === "finished" ? (
+              <div className={`winner-card ${winnerClass(game.winner)}`}>
+                <span className="winner-kicker">
+                  Vencedor da rodada {game.round}
+                </span>
+                <strong>{formatWinner(game.winner, game.playerNames)}</strong>
+                <small>
+                  {game.winner === "empate"
+                    ? "As somas de distância ficaram iguais."
+                    : "Menor soma de distâncias até o ponto neutro."}
+                </small>
+              </div>
+            ) : null}
+
+            <div className="panel">
+              <h3>Resultado</h3>
+              {game.phase === "result" || game.phase === "finished" ? (
+                <>
+                  <p>Ponto neutro: {formatPoint(game.target)}</p>
+                  <p>
+                    Soma de {getPlayerName(1)}: {game.score[1].toFixed(2)}
+                  </p>
+                  <p>
+                    Soma de {getPlayerName(2)}: {game.score[2].toFixed(2)}
+                  </p>
+                  <p>
+                    Vencedor:{" "}
+                    <span className={`winner-pill ${winnerClass(game.winner)}`}>
+                      {formatWinner(game.winner, game.playerNames)}
+                    </span>
+                  </p>
+                </>
+              ) : (
+                <p>Finalize o posicionamento e clique em resolver rodada.</p>
+              )}
+            </div>
+
+            <div className="actions">
+              <button
+                type="button"
+                className="primary-button"
+                onClick={
+                  game.phase === "result" ? startNextRound : handleResolveRound
+                }
+                disabled={
+                  matchFinished || (game.phase !== "result" && !setupComplete)
+                }
+              >
+                {matchFinished
+                  ? "Partida finalizada"
+                  : game.phase === "result"
+                    ? "Próxima rodada"
+                    : "Resolver rodada"}
+              </button>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => resetGame(game.mode)}
+              >
+                Novo jogo
+              </button>
+            </div>
+
+            <div className="panel">
+              <h3>Estado atual</h3>
               <p>
-                <strong>
-                  Rodada {Math.min(game.round, MAX_ROUNDS)} de {MAX_ROUNDS}.
-                </strong>{" "}
-                {game.message}
+                Jogador da vez:{" "}
+                {game.mode === "bot"
+                  ? getPlayerName(1)
+                  : getPlayerName(game.currentPlayer)}
+              </p>
+              <p>
+                Pontos de {getPlayerName(1)}: {game.points[1].length}/
+                {POINTS_PER_PLAYER}
+              </p>
+              <p>
+                Pontos de {getPlayerName(2)}: {game.points[2].length}/
+                {POINTS_PER_PLAYER}
+              </p>
+              <p>
+                Placar: {matchSummary.wins[1]} x {matchSummary.wins[2]}
+                {matchSummary.wins.draws > 0
+                  ? ` (${matchSummary.wins.draws} empate${matchSummary.wins.draws > 1 ? "s" : ""})`
+                  : ""}
               </p>
             </div>
-            <span className="phase-pill">
-              {game.phase === "setup"
-                ? "Preparação"
-                : game.phase === "ready"
-                  ? "Pronto"
-                  : game.phase === "finished"
-                    ? "Final"
-                    : "Resultado"}
-            </span>
-          </div>
 
-          <div
-            ref={boardRef}
-            className={`board ${game.phase !== "setup" ? "board-readonly" : ""}`}
-            onClick={handleBoardClick}
-            role="application"
-            aria-label="Quadro de posicionamento"
-          >
-            <div className="board-rim" aria-hidden="true" />
-            <div className="axis-label axis-top-left">1</div>
-            <div className="axis-label axis-bottom-right">
-              {BOARD_WIDTH} x {BOARD_HEIGHT}
+            <div className="panel">
+              <h3>Algoritmo</h3>
+              {game.closestPair ? (
+                <>
+                  <p>
+                    Par mais próximo: {formatPoint(game.closestPair.pair[0])} e{" "}
+                    {formatPoint(game.closestPair.pair[1])}
+                  </p>
+                  <p>Distância: {game.closestPair.distance.toFixed(2)}</p>
+                </>
+              ) : (
+                <p>Posicione os 10 pontos para ver o resultado do algoritmo.</p>
+              )}
             </div>
 
-            <div className="board-points">
-              {game.points[1].map((point) => {
-                const isTarget =
-                  game.target?.x === point.x && game.target?.y === point.y;
-                const isClosestPair = game.closestPair?.pair?.some(
-                  (candidate) =>
-                    candidate.x === point.x && candidate.y === point.y,
-                );
-
-                return (
-                  <button
-                    key={`p1-${pointKey(point)}`}
-                    type="button"
-                    className={`point-dot player-one ${isTarget ? "target" : ""} ${isClosestPair ? "closest-pair" : ""}`}
-                    style={pointPosition(point)}
-                    disabled
-                    aria-label={`${getPlayerName(1)} em ${formatPoint(point)}`}
-                  >
-                    <span className={pointLabelClass(point)}>
-                      {getPlayerName(1)} {formatPoint(point)}
-                    </span>
-                  </button>
-                );
-              })}
-
-              {game.points[2].map((point) => {
-                const isTarget =
-                  game.target?.x === point.x && game.target?.y === point.y;
-                const isClosestPair = game.closestPair?.pair?.some(
-                  (candidate) =>
-                    candidate.x === point.x && candidate.y === point.y,
-                );
-
-                return (
-                  <button
-                    key={`p2-${pointKey(point)}`}
-                    type="button"
-                    className={`point-dot player-two ${isTarget ? "target" : ""} ${isClosestPair ? "closest-pair" : ""}`}
-                    style={pointPosition(point)}
-                    disabled
-                    aria-label={`${getPlayerName(2)} em ${formatPoint(point)}`}
-                  >
-                    <span className={pointLabelClass(point)}>
-                      {getPlayerName(2)} {formatPoint(point)}
-                    </span>
-                  </button>
-                );
-              })}
-
-              {game.target ? (
-                <div
-                  className="target-dot"
-                  style={pointPosition(game.target)}
-                  aria-hidden="true"
-                />
-              ) : null}
-            </div>
-          </div>
-
-          <div className="points-under-board">
-            <h3>Lista de pontos</h3>
-            <div className="points-grid">
-              <div>
-                <strong>{getPlayerName(1)}</strong>
-                <ul>
-                  {game.points[1].map((point) => (
-                    <li key={pointKey(point)}>{formatPoint(point)}</li>
-                  ))}
-                </ul>
+            {matchFinished ? (
+              <div
+                className={`champion-card ${winnerClass(matchSummary.champion)}`}
+              >
+                <span className="winner-kicker">Campeão da partida</span>
+                <strong>
+                  {formatWinner(matchSummary.champion, game.playerNames)}
+                </strong>
+                <small>
+                  Placar final: {getPlayerName(1)} {matchSummary.wins[1]} x{" "}
+                  {matchSummary.wins[2]} {getPlayerName(2)}
+                </small>
               </div>
-              <div>
-                <strong>{getPlayerName(2)}</strong>
-                <ul>
-                  {game.points[2].map((point) => (
-                    <li key={pointKey(point)}>{formatPoint(point)}</li>
+            ) : null}
+
+            <div className="panel">
+              <h3>Histórico de rodadas</h3>
+              {game.rounds.length > 0 ? (
+                <ol className="round-history">
+                  {game.rounds.map((round) => (
+                    <li key={round.number}>
+                      <span>Rodada {round.number}</span>
+                      <strong
+                        className={`winner-pill ${winnerClass(round.winner)}`}
+                      >
+                        {formatWinner(round.winner, game.playerNames)}
+                      </strong>
+                    </li>
                   ))}
-                </ul>
-              </div>
+                </ol>
+              ) : (
+                <p>Nenhuma rodada resolvida ainda.</p>
+              )}
             </div>
-          </div>
-        </div>
-
-        <aside className="sidebar">
-          {game.phase === "result" || game.phase === "finished" ? (
-            <div className={`winner-card ${winnerClass(game.winner)}`}>
-              <span className="winner-kicker">Vencedor da rodada {game.round}</span>
-              <strong>{formatWinner(game.winner, game.playerNames)}</strong>
-              <small>
-                {game.winner === "empate"
-                  ? "As somas de distância ficaram iguais."
-                  : "Menor soma de distâncias até o ponto neutro."}
-              </small>
-            </div>
-          ) : null}
-
-          <div className="panel">
-            <h3>Resultado</h3>
-            {game.phase === "result" || game.phase === "finished" ? (
-              <>
-                <p>Ponto neutro: {formatPoint(game.target)}</p>
-                <p>
-                  Soma de {getPlayerName(1)}: {game.score[1].toFixed(2)}
-                </p>
-                <p>
-                  Soma de {getPlayerName(2)}: {game.score[2].toFixed(2)}
-                </p>
-                <p>
-                  Vencedor:{" "}
-                  <span className={`winner-pill ${winnerClass(game.winner)}`}>
-                    {formatWinner(game.winner, game.playerNames)}
-                  </span>
-                </p>
-              </>
-            ) : (
-              <p>Finalize o posicionamento e clique em resolver rodada.</p>
-            )}
-          </div>
-
-          <div className="actions">
-            <button
-              type="button"
-              className="primary-button"
-              onClick={game.phase === "result" ? startNextRound : handleResolveRound}
-              disabled={
-                matchFinished || (game.phase !== "result" && !setupComplete)
-              }
-            >
-              {matchFinished
-                ? "Partida finalizada"
-                : game.phase === "result"
-                  ? "Próxima rodada"
-                  : "Resolver rodada"}
-            </button>
-            <button
-              type="button"
-              className="ghost-button"
-              onClick={() => resetGame(game.mode)}
-            >
-              Novo jogo
-            </button>
-          </div>
-
-          <div className="panel">
-            <h3>Estado atual</h3>
-            <p>
-              Jogador da vez:{" "}
-              {game.mode === "bot" ? getPlayerName(1) : getPlayerName(game.currentPlayer)}
-            </p>
-            <p>
-              Pontos de {getPlayerName(1)}: {game.points[1].length}/
-              {POINTS_PER_PLAYER}
-            </p>
-            <p>
-              Pontos de {getPlayerName(2)}: {game.points[2].length}/
-              {POINTS_PER_PLAYER}
-            </p>
-            <p>
-              Placar: {matchSummary.wins[1]} x {matchSummary.wins[2]}
-              {matchSummary.wins.draws > 0
-                ? ` (${matchSummary.wins.draws} empate${matchSummary.wins.draws > 1 ? "s" : ""})`
-                : ""}
-            </p>
-          </div>
-
-          <div className="panel">
-            <h3>Algoritmo</h3>
-            {game.closestPair ? (
-              <>
-                <p>
-                  Par mais próximo: {formatPoint(game.closestPair.pair[0])} e{" "}
-                  {formatPoint(game.closestPair.pair[1])}
-                </p>
-                <p>Distância: {game.closestPair.distance.toFixed(2)}</p>
-              </>
-            ) : (
-              <p>Posicione os 10 pontos para ver o resultado do algoritmo.</p>
-            )}
-          </div>
-
-          {matchFinished ? (
-            <div className={`champion-card ${winnerClass(matchSummary.champion)}`}>
-              <span className="winner-kicker">Campeão da partida</span>
-              <strong>
-                {formatWinner(matchSummary.champion, game.playerNames)}
-              </strong>
-              <small>
-                Placar final: {getPlayerName(1)} {matchSummary.wins[1]} x{" "}
-                {matchSummary.wins[2]} {getPlayerName(2)}
-              </small>
-            </div>
-          ) : null}
-
-          <div className="panel">
-            <h3>Histórico de rodadas</h3>
-            {game.rounds.length > 0 ? (
-              <ol className="round-history">
-                {game.rounds.map((round) => (
-                  <li key={round.number}>
-                    <span>Rodada {round.number}</span>
-                    <strong className={`winner-pill ${winnerClass(round.winner)}`}>
-                      {formatWinner(round.winner, game.playerNames)}
-                    </strong>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p>Nenhuma rodada resolvida ainda.</p>
-            )}
-          </div>
-        </aside>
-      </section>
+          </aside>
+        </section>
       ) : null}
     </main>
   );
