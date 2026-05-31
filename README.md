@@ -45,11 +45,16 @@ Atualmente o sistema permite:
 
 # Imagem 2 - Quadro panorâmico com pontos posicionados e lista de pontos:
 
-![Quadro com pontos](./images/quadro-com-pontos.png)
+![Quadro com pontos](./images/marcando-pontos.png)
 
-# Imagem 3 - Resultado da rodada com vencedor destacado:
+# Imagem 3 - Vencendor da rodada destacado com ponto neutro e par mais próximo:
 
-![Resultado da rodada](./images/resultado-rodada.png)
+![Resultado da rodada](./images/campeao-rodada.png)
+
+# Imagem 4 - Resultado da rodada com vencedor destacado:
+
+![Resultado da rodada](./images/vencedor-rodada.png)
+
 
 ## Exemplo de Lista de Pontos
 
