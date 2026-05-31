@@ -5,7 +5,7 @@ Conteúdo da Disciplina: Projeto de Algoritmos - Dividir e Conquistar<br>
 
 ## Vídeo de apresentação
 
-A ser adicionado.
+https://youtu.be/UgJdSGCNJwc
 
 ## Alunos
 
